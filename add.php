@@ -1,6 +1,6 @@
 <?php
-  include "config.php";
-  include "header.php";
+include 'config.php';
+include 'header.php';
 ?>
 <div class="form-style-5">
   <form method="POST" enctype="multipart/form-data" action="DB.php?action=add">
@@ -13,16 +13,18 @@
         <optgroup>
           <option value="">---</option>
           <?php
-            $sql = "SELECT * FROM classes ";
+            $sql = 'SELECT class_code,class_name FROM classes';
             $stmt = $conn->prepare($sql);
             $stmt->execute();
             $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
             foreach ($stmt->fetchAll() as $arr) {
-          ?>
-          <option value="<?php echo isset($arr["class_code"]) ? $arr["class_code"] : null; ?>"><?php echo isset($arr["class_name"]) ? $arr["class_name"] : null; ?></option>
-          <?php
+                ?>
+            <option value="<?php echo isset($arr['class_code']) ? $arr['class_code'] : null; ?>">
+                <?php echo isset($arr['class_name']) ? $arr['class_name'] : null; ?>
+            </option>
+                <?php
             }
-          ?>
+            ?>
         </optgroup>
       </select>
       <label>Name</label>
@@ -39,7 +41,6 @@
       <input type="date" name="date_birth" value="" placeholder="Your Date Birth *">
       <label>Address</label>
       <input type="text" name="address" placeholder="Your Address *" value="">
-      </select>
       <label>Maths</label>
       <input type="text" name="points" placeholder="Your Maths Point *">
       <label>Physical</label>
@@ -51,5 +52,5 @@
   </form>
 </div>
 <?php
- include "footer.php";
+include 'footer.php';
 ?>
