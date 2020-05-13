@@ -28,12 +28,29 @@ include 'header.php';
         <td>Action</td>
     </tr>
     <?php
-    $sql = 'SELECT *,students.id FROM students INNER JOIN classes ON students.class_code_id = classes.class_code';
+    $sql = 'SELECT classes.class_name, students.*, subject_point.points  FROM students INNER JOIN classes ON students.class_code_id = classes.class_code INNER JOIN subject_point ON students.student_code = subject_point.code_student_id';
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
-    $i = 0;
-    foreach ($stmt->fetchAll() as $row) {
+    $results = $stmt->fetchAll();
+
+    $newArr = [];
+    $count=0;
+    foreach ($results as $key => $value) {
+        $newArr[$value['id']]['id'] = $value['id'];
+        $newArr[$value['id']]['class_code'] = $value['class_code'];
+        $newArr[$value['id']]['class_name'] = $value['class_name'];
+        $newArr[$value['id']]['student_code'] = $value['student_code'];
+        $newArr[$value['id']]['class_code_id'] = $value['class_code_id'];
+        $newArr[$value['id']]['name'] = $value['name'];
+        $newArr[$value['id']]['sex'] = $value['sex'];
+        $newArr[$value['id']]['address'] = $value['address'];
+        $newArr[$value['id']]['date_birth'] = $value['date_birth'];
+        $newArr[$value['id']]['points'][] = $value['points'];
+        $count++;
+    }
+
+    foreach ($newArr as $row) {
         ?>
         <tr class="">
             <td><?php echo $row['id']; ?></td>
@@ -50,15 +67,9 @@ include 'header.php';
             }
             ?></td>
             <td><?php echo $row['address']; ?></td>
-            <td><?php echo $row['date_birth']; ?></td>
-            <?php
-            $sql = "SELECT points FROM subject_point WHERE code_student_id ='" . $row['student_code'] . "'";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute();
-            $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
-            ?>
-            <?php foreach ($stmt->fetchAll() as $value) {
-                echo '<td>' . $value['points'] . '</td>';
+            <td><?php echo $row['date_birth']; ?></td>  
+            <?php foreach ($row['points'] as $values) {
+                echo '<td>' . $values . '</td>';
             } ?>
             <td style="text-align: center;">
                  <a href="edit.php?id=<?php echo $row['id'];?>">Edit</a>

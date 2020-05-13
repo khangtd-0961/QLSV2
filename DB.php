@@ -28,27 +28,27 @@ switch ($action) {
             $points = $_POST['points'];
             $points1 = $_POST['points1'];
             $points2 = $_POST['points2'];
-            $a = [
+            $arraySubjectpoint = [
                 [
-                    "$studentCode",
+                    $studentCode,
                     'Maths',
-                    "$points",
+                    $points,
                 ],
                 [
-                    "$studentCode",
+                    $studentCode,
                     'Physical',
-                    "$points1",
+                    $points1,
                 ],
                 [
-                    "$studentCode",
+                    $studentCode,
                     'Chemistry',
-                    "$points2",
+                    $points2,
                 ],
             ];
-            $args = array_fill(0, count($a[0]), '?');
+            $args = array_fill(0, count($arraySubjectpoint[0]), '?');
             $stmt1 = $conn->prepare('INSERT INTO subject_point (code_student_id, subject, points) 
             VALUES (' . implode(', ', $args) . ')');
-            foreach ($a as $value) {
+            foreach ($arraySubjectpoint as $value) {
                 $stmt1->execute($value);
             }
             header('location:index.php');
@@ -74,8 +74,8 @@ switch ($action) {
     case 'edit':
         try {
             $id = isset($_GET['id']) ? $_GET['id'] : null;
-            $stmt = $conn->prepare("UPDATE students SET student_code = :studentCode, class_code_id = :classCodeId, name = :name, sex = :sex, address = :address, date_birth = :dateBirth
-             WHERE id=$id");
+            $stmt = $conn->prepare("UPDATE students SET student_code = :studentCode, class_code_id = :classCodeId,
+            name = :name, sex = :sex, address = :address, date_birth = :dateBirth WHERE id=$id");
             $stmt->bindParam(':studentCode', $studentCode);
             $stmt->bindParam(':classCodeId', $classCodeId);
             $stmt->bindParam(':name', $name);
@@ -92,15 +92,20 @@ switch ($action) {
             $dateBirth = $_POST['date_birth'];
             $subjecId = $_POST['id'];
             $points = $_POST['points'];
-            var_dump($subjecId);
-            $args = array_fill(0, count($points[0]), '?');
+            
             foreach ($points as $key => $value) {
-                $stmt1 = $conn->prepare("UPDATE subject_point SET points=$value WHERE id = $subjecId[$key]");
+                $stmt1 = $conn->prepare('UPDATE subject_point SET points = :points WHERE id = :subjecId');
+                $stmt1->bindParam(':points', $value);
+                $stmt1->bindParam(':subjecId', $subjecId[$key]);
                 $stmt1->execute();
             }
             $stmt->execute();
             header('location:index.php');
         } catch (Exception $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollback();
+                // If we got here our two data updates are not in the database
+            }
             echo 'Error: ' . $e->getMessage();
         }
         break;
